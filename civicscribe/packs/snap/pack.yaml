@@ -1,0 +1,44 @@
+---
+slug: snap
+title: "SNAP (TX - generic demo)"
+welcome: "Hello! I can help you with your SNAP application."
+notes:
+  - id: income_def
+    title: "Monthly Gross Income"
+    text: "Gross income is your income before taxes and deductions."
+flow:
+  order:
+    - full_name
+    - date_of_birth
+    - household_size
+    - home_address
+    - phone
+    - email
+    - monthly_income
+    - ssn_last4_optional
+fields:
+  full_name: { label: "What is your full name?", type: text, required: true }
+  date_of_birth: { label: "What is your date of birth?", type: date, required: true }
+  household_size: { label: "How many people live in your household?", type: number, required: true }
+  home_address: { label: "What is your home address?", type: address, required: true }
+  phone: { label: "What is your phone number?", type: phone, required: true }
+  email: { label: "What is your email address?", type: email, required: true }
+  monthly_income: { label: "What is your household’s monthly gross income (before taxes)?", type: currency, required: true }
+  ssn_last4_optional: { label: "Last 4 digits of your SSN (optional)", type: text, required: false }
+doc_requirements:
+  - kind: income_proof
+    label: "Upload proof of income (e.g., Social Security statement)"
+    docai_hint: "social_security_statement"
+completion:
+  summary_text: "Great news! We have everything we need for your SNAP form."
+overlay_defaults:
+  # fallback positions if AcroForm names are not found
+  page1:
+    full_name: { x: 100, y: 700 }
+    date_of_birth: { x: 100, y: 680 }
+    household_size: { x: 100, y: 660 }
+    home_address: { x: 100, y: 640 }
+    phone: { x: 100, y: 620 }
+    email: { x: 100, y: 600 }
+    monthly_income: { x: 100, y: 580 }
+    ssn_last4_optional: { x: 100, y: 560 }

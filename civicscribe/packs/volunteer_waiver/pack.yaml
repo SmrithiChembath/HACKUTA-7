@@ -1,0 +1,23 @@
+---
+slug: volunteer_waiver
+title: "Volunteer Waiver (Demo)"
+welcome: "Welcome to the volunteer waiver form."
+notes:
+  - id: safety
+    title: "Safety Notice"
+    text: "Please read and understand the waiver before agreeing."
+flow:
+  order:
+    - full_name
+    - email
+    - phone
+    - event_date
+    - agree
+fields:
+  full_name: { label: "What is your full name?", type: text, required: true }
+  email: { label: "What is your email address?", type: email, required: true }
+  phone: { label: "What is your phone number?", type: phone, required: true }
+  event_date: { label: "What is the event date?", type: date, required: true }
+  agree: { label: "Do you agree to the waiver? (type YES)", type: text, required: true }
+completion:
+  summary_text: "Thanks! Your volunteer waiver is complete."
