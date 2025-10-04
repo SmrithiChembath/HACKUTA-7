@@ -2,6 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getSessionStatus, postAnswer, getMessages, uploadDocument, renderPdfUrl, getPacks, getPackNotes } from '../lib/api'
+import AccessibleAudio from '../components/AccessibleAudio'
 
 export default function Chat() {
   const { sessionId } = useParams()
@@ -12,8 +13,6 @@ export default function Chat() {
   const [pendingKey, setPendingKey] = useState<string | null>(null)
   const [audioOn, setAudioOn] = useState(true)
   const [showNotes, setShowNotes] = useState(false)
-  const [packSlug, setPackSlug] = useState<string | null>(null)
-  const [notes, setNotes] = useState<any[]>([])
 
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -22,23 +21,18 @@ export default function Chat() {
     const status = await getSessionStatus(sessionId!, token)
     setProgress(status.progress)
     setPendingKey(status.pending_key)
-    // pull latest messages
     const ms = await getMessages(sessionId!, token)
     setMessages(ms)
-    // derive pack slug from first message meta? fallback none
-    if (!packSlug && ms.length > 0) {
-      // not available; skip
-    }
   }
 
   useEffect(() => { refresh() }, [])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   async function send() {
-    if (!input.trim()) return
+    if (!input.trim() || !pendingKey) return
     const token = await getAccessTokenSilently()
     setMessages(m => [...m, { role: 'user', text: input }])
-    const res = await postAnswer(sessionId!, pendingKey!, input, token)
+    const res = await postAnswer(sessionId!, pendingKey, input, token)
     setMessages(m => [...m, { role: 'assistant', text: res.assistant_text, audio_url: res.audio_url }])
     setInput('')
     setProgress(res.progress)
@@ -57,16 +51,14 @@ export default function Chat() {
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
       <div className="p-4 flex flex-col">
-        <div className="banner">CivicScribe offers guidance, not legal advice.</div>
+        <div className="banner">Guidance only; not legal advice.</div>
         <div className="flex-1 overflow-auto space-y-3 mt-3">
           {messages.map((m, idx) => (
             <div key={idx} className={m.role === 'assistant' ? 'text-left' : 'text-right'}>
               <div className={"inline-block rounded-2xl px-4 py-3 " + (m.role === 'assistant' ? 'bg-neutral-100 text-neutral-800' : 'bg-blue-600 text-white')}>
                 {m.text}
               </div>
-              {m.audio_url && audioOn && (
-                <audio controls src={m.audio_url} className="mt-1"/>
-              )}
+              {m.audio_url && audioOn && <AccessibleAudio src={m.audio_url} />}
             </div>
           ))}
           <div ref={bottomRef} />
@@ -96,18 +88,13 @@ export default function Chat() {
       </div>
 
       {showNotes && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center" role="dialog" aria-modal>
-          <div className="bg-white text-black rounded-xl p-6 max-w-lg w-full">
-            <div className="text-xl font-semibold mb-2">Notes</div>
-            <NotesView packSlug={packSlug} onClose={()=>setShowNotes(false)} />
-          </div>
-        </div>
+        <NotesModal onClose={()=>setShowNotes(false)} />
       )}
     </div>
   )
 }
 
-function NotesView({ packSlug, onClose }: { packSlug: string | null, onClose: ()=>void }) {
+function NotesModal({ onClose }: { onClose: ()=>void }) {
   const [notes, setNotes] = useState<any[]>([])
   useEffect(() => {
     async function load() {
@@ -120,17 +107,20 @@ function NotesView({ packSlug, onClose }: { packSlug: string | null, onClose: ()
   }, [])
 
   return (
-    <div>
-      <div className="space-y-3 max-h-80 overflow-auto">
-        {notes.map((n:any)=> (
-          <div key={n.id} className="border rounded p-3">
-            <div className="font-medium">{n.title}</div>
-            <div className="text-sm text-neutral-700">{n.text}</div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 text-right">
-        <button className="underline" onClick={onClose}>Close</button>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center" role="dialog" aria-modal>
+      <div className="bg-white text-black rounded-xl p-6 max-w-lg w-full">
+        <div className="text-xl font-semibold mb-2">Notes</div>
+        <div className="space-y-3 max-h-80 overflow-auto">
+          {notes.map((n:any)=> (
+            <div key={n.id} className="border rounded p-3">
+              <div className="font-medium">{n.title}</div>
+              <div className="text-sm text-neutral-700">{n.text}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 text-right">
+          <button className="underline" onClick={onClose}>Close</button>
+        </div>
       </div>
     </div>
   )

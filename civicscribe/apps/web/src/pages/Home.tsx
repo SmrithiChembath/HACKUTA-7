@@ -12,7 +12,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6">
-      <div className="banner" aria-live="polite">CivicScribe offers guidance, not legal advice.</div>
+      <div className="banner" aria-live="polite">Guidance only; not legal advice.</div>
       <h1 className="text-4xl font-bold">CivicScribe</h1>
       <button className="button-primary" onClick={() => loginWithPopup()} aria-label="Start your application">
         Start Your Application

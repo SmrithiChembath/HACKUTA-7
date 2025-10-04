@@ -1,7 +1,8 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     # Auth0
     AUTH0_DOMAIN: str = ""
     AUTH0_AUDIENCE: str = ""
@@ -28,8 +29,5 @@ class Settings(BaseSettings):
 
     # App
     BASE_URL: str = "http://localhost:8000"
-
-    class Config:
-        env_file = ".env"
 
 settings = Settings()

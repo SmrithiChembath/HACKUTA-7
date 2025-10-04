@@ -25,28 +25,7 @@ async def get_current_user(creds: HTTPAuthorizationCredentials = Depends(http_be
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
 
     token = creds.credentials
-    try:
-        unverified_header = jwt.get_unverified_header(token)
-        jwks = await get_jwks()
-        public_key = None
-        for key in jwks["keys"]:
-            if key["kid"] == unverified_header["kid"]:
-                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
-                break
-        if public_key is None:
-            raise HTTPException(status_code=401, detail="Invalid header")
-
-        issuer = settings.AUTH0_ISSUER or f"https://{settings.AUTH0_DOMAIN}/"
-        payload = jwt.decode(
-            token,
-            public_key,
-            algorithms=["RS256"],
-            audience=settings.AUTH0_AUDIENCE,
-            issuer=issuer,
-        )
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
-
+    payload = await decode_token(token)
     # Upsert user in Supabase
     sb = get_supabase()
     auth0_sub = payload.get("sub")
