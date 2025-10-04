@@ -7,8 +7,7 @@ import os
 
 router = APIRouter()
 
-@router.post("/{id}/render")
-async def render_pdf(id: str, user=Depends(get_current_user)):
+def _render_bytes(id: str) -> bytes:
     sb = get_supabase()
     s = sb.table("sessions").select("*").eq("id", id).single().execute().data
     if not s:
@@ -30,7 +29,6 @@ async def render_pdf(id: str, user=Depends(get_current_user)):
     try:
         pdf_bytes = fill_pdf_acroform(template_bytes, mapping, answers)
     except Exception:
-        # overlay fallback: place some key fields in default spots on first page
         default_overlay = {0: [
             {"x": 100, "y": 700, "text": answers.get("full_name", "")},
             {"x": 100, "y": 680, "text": answers.get("date_of_birth", "")},
@@ -42,6 +40,18 @@ async def render_pdf(id: str, user=Depends(get_current_user)):
             {"x": 100, "y": 560, "text": answers.get("ssn_last4_optional", "")},
         ]}
         pdf_bytes = overlay_text(template_bytes, default_overlay)
+    return pdf_bytes
 
+
+@router.post("/{id}/render")
+async def render_pdf_post(id: str, user=Depends(get_current_user)):
+    pdf_bytes = _render_bytes(id)
     headers = {"Content-Type": "application/pdf", "Content-Disposition": "attachment; filename=completed.pdf"}
+    return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+
+
+@router.get("/{id}/render")
+async def render_pdf_get(id: str, user=Depends(get_current_user)):
+    pdf_bytes = _render_bytes(id)
+    headers = {"Content-Type": "application/pdf", "Content-Disposition": "inline; filename=completed.pdf"}
     return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
