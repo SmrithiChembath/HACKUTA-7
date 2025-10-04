@@ -1,0 +1,10 @@
+{
+  "full_name": ["Page1.Name", "Page1.SignatureName"],
+  "date_of_birth": "Page1.DOB",
+  "household_size": "Page1.HouseholdSize",
+  "home_address": "Page1.Address",
+  "phone": "Page1.Phone",
+  "email": "Page1.Email",
+  "monthly_income": ["Page1.MonthlyGrossIncome", "Page1.MonthlyGrossIncome_Box2"],
+  "ssn_last4_optional": "Page1.SSN4"
+}

@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+body { @apply bg-white text-black dark:bg-neutral-900 dark:text-white; }
+
+.banner { @apply w-full text-center py-2 text-sm bg-yellow-100 text-yellow-900; }
+.button-primary { @apply bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400; }
+.card { @apply border border-neutral-200 rounded-xl p-6 shadow-sm hover:shadow-md; }
